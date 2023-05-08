@@ -1,0 +1,7 @@
+node_modules
+dist
+jest.config.js
+coverage
+Docker
+.husky
+tsconfig.json

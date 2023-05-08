@@ -1,0 +1,20 @@
+version: '3.2'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=${AMQP_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${AMQP_PASSWORD}
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/home/rafael/projects/discord-bot-api-queue/Docker/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/home/rafael/projects/discord-bot-api-queue/Docker/log/rabbitmq
+    networks:
+      - rabbitmq_api_queue_net
+
+networks:
+  rabbitmq_api_queue_net:
+    driver: bridge
