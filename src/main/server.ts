@@ -1,13 +1,20 @@
-import amqp from 'amqplib';
+import { connect } from 'amqplib';
 import 'dotenv/config';
+import { makeRemoteSaveMusicFactory, makeRemoteSaveQueueFactory } from './factories/usecases';
+import { type AmqpQueue } from '@/domain/models';
 
-const queue = 'action';
+const queues: AmqpQueue[] = [
+  { action: 'music', factory: makeRemoteSaveMusicFactory() },
+  { action: 'queue', factory: makeRemoteSaveQueueFactory() }
+];
 
-(async () => {
+void (async () => {
   try {
-    const connection = await amqp.connect(
-      `amqp://${process.env.AMQP_USERNAME}:${process.env.AMQP_PASSWORD}@localhost:${process.env.AMQP_PORT}`
+    const connection = await connect(
+      `amqp://${process.env.AMQP_USERNAME}:${process.env.AMQP_PASSWORD}@${process.env.AMQP_ADRESS}:${process.env.AMQP_PORT}`
     );
+    console.log('✅ Connected to AMQP');
+
     const channel = await connection.createChannel();
 
     process.once('SIGINT', async () => {
@@ -15,17 +22,26 @@ const queue = 'action';
       await connection.close();
     });
 
-    await channel.assertQueue(queue, { durable: false });
-    await channel.consume(
-      queue,
-      message => {
-        console.log(" [x] Received '%s'", message.content.toString());
-      },
-      { noAck: true }
-    );
+    for (const queue of queues) {
+      await channel.assertQueue(queue.action, { durable: false });
+      await channel.consume(
+        queue.action,
+        async message => {
+          console.log(`📥 [${queue.action}] Received '%s'`, message.content.toString());
+          try {
+            const payload = JSON.parse(message.content.toString());
+            await queue.factory.save(payload);
+            channel.ack(message);
+          } catch (err) {
+            console.error('❌ Error while trying to call factory:', err.message);
+          }
+        },
+        { noAck: false }
+      );
+    }
 
-    console.log(' [*] Waiting for messages. To exit press CTRL+C');
+    console.log('⌛ Waiting for messages. To exit press CTRL+C');
   } catch (err) {
-    console.warn(err);
+    console.warn(`❌ ${err}`);
   }
 })();
