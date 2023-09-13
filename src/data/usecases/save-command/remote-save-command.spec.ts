@@ -3,6 +3,7 @@ import { RemoteSaveCommand } from './remote-save-command';
 import { HttpStatusCode } from '@/data/protocols/http';
 import { faker } from '@faker-js/faker';
 import { mockSaveCommandParams } from '@/domain/test';
+import { AccessDeniedError } from '@/domain/errors';
 
 type SutTypes = {
   sut: RemoteSaveCommand;
@@ -31,5 +32,14 @@ describe('RemoteSaveCommand', () => {
     expect(httpClientSpy.url).toBe(url);
     expect(httpClientSpy.method).toBe('post');
     expect(httpClientSpy.body).toEqual(body);
+  });
+
+  test('should throw AccessDeniedError if HttpClient returns 403', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.forbidden
+    };
+    const promise = sut.save(mockSaveCommandParams());
+    await expect(promise).rejects.toThrow(new AccessDeniedError());
   });
 });
