@@ -60,4 +60,15 @@ describe('RemoteSaveCommand', () => {
     const promise = sut.save(mockSaveCommandParams());
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
+
+  test('should return void if HttpClient returns 204', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    const httpResult = mockSaveCommandParams();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.noContent,
+      body: httpResult
+    };
+    const response = await sut.save(mockSaveCommandParams());
+    expect(response).toBeFalsy();
+  });
 });
