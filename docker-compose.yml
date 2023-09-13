@@ -15,6 +15,30 @@ services:
     networks:
       - rabbitmq_api_queue_net
 
+  api-queue:
+    container_name: api-queue-container
+    image: node:16
+    working_dir: /home/rafael/projects/discord-bot-api-queue/Docker/discord-bot-api-queue
+    restart: always
+    command: bash -c "npm install && npm run debug"
+    environment:
+      - AMQP_USERNAME=discord-bot-api-queue
+      - AMQP_PASSWORD=password
+      - AMQP_PORT=5672
+      - AMQP_ADRESS=rabbitmq
+      - BOT_API_URL=http://localhost:5050/api
+      - BOT_API_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzNjUzMjhlZTU2ZDhlNzJiZWIyZDI0MiIsImlhdCI6MTY4MDY5NzM3Nn0.H-v_y-k29j9luYL2hFid29l5GFnZxCO7iF3E2PPBYSA
+    volumes:
+      - ./dist/:/home/rafael/projects/discord-bot-api-queue/Docker/discord-bot-api-queue/dist
+      - ./package.json:/home/rafael/projects/discord-bot-api-queue/Docker/discord-bot-api-queue/package.json
+    ports:
+      - '4050:4050'
+      - '8222:8222'
+    links:
+      - rabbitmq
+    networks:
+      - rabbitmq_api_queue_net
+
 networks:
   rabbitmq_api_queue_net:
     driver: bridge
