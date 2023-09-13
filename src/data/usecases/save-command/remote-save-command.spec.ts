@@ -3,7 +3,7 @@ import { RemoteSaveCommand } from './remote-save-command';
 import { HttpStatusCode } from '@/data/protocols/http';
 import { faker } from '@faker-js/faker';
 import { mockSaveCommandParams } from '@/domain/test';
-import { AccessDeniedError } from '@/domain/errors';
+import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
 
 type SutTypes = {
   sut: RemoteSaveCommand;
@@ -41,5 +41,14 @@ describe('RemoteSaveCommand', () => {
     };
     const promise = sut.save(mockSaveCommandParams());
     await expect(promise).rejects.toThrow(new AccessDeniedError());
+  });
+
+  test('should throw UnexpectedError if HttpClient returns 404', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.notFound
+    };
+    const promise = sut.save(mockSaveCommandParams());
+    await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 });
