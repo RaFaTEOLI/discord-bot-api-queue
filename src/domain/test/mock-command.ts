@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
-import { type SaveCommandParams } from '@/domain/usecases';
+import { type CommandOptionType, type SaveCommandParams } from '@/domain/usecases';
 
-const makeCommandOptionType = (): number =>
-  faker.helpers.arrayElement(Array.from({ length: 11 }, (_, i) => i + 1));
+const makeCommandOptionType = (): CommandOptionType =>
+  faker.helpers.arrayElement(Array.from({ length: 11 }, (_, i) => i + 1)) as CommandOptionType;
 
 export const mockSaveCommandParams = (): SaveCommandParams => {
   return {
