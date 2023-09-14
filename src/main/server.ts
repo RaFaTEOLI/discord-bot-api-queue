@@ -1,11 +1,16 @@
 import { connect } from 'amqplib';
 import 'dotenv/config';
-import { makeRemoteSaveMusicFactory, makeRemoteSaveQueueFactory } from './factories/usecases';
+import {
+  makeRemoteSaveMusicFactory,
+  makeRemoteSaveQueueFactory,
+  makeRemoteSaveCommandFactory
+} from './factories/usecases';
 import { type AmqpQueue } from '@/domain/models';
 
 const queues: AmqpQueue[] = [
   { action: 'music', factory: makeRemoteSaveMusicFactory() },
-  { action: 'queue', factory: makeRemoteSaveQueueFactory() }
+  { action: 'queue', factory: makeRemoteSaveQueueFactory() },
+  { action: 'command', factory: makeRemoteSaveCommandFactory() }
 ];
 
 void (async () => {
