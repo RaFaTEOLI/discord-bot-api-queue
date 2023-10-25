@@ -1,19 +1,38 @@
 import { faker } from '@faker-js/faker';
-import { type CommandOptionType, type SaveCommandParams } from '@/domain/usecases';
+import { ApplicationCommandType, CommandOptionType, type SaveCommandParams } from '@/domain/usecases';
 
-const makeCommandOptionType = (): CommandOptionType =>
-  faker.helpers.arrayElement(Array.from({ length: 11 }, (_, i) => i + 1)) as CommandOptionType;
+export const mockApplicationCommandType = (): ApplicationCommandType =>
+  faker.helpers.arrayElement([
+    ApplicationCommandType.CHAT_INPUT,
+    ApplicationCommandType.MESSAGE,
+    ApplicationCommandType.USER
+  ]);
+
+const mockCommandOptionType = (): CommandOptionType =>
+  faker.helpers.arrayElement([
+    CommandOptionType.SUB_COMMAND,
+    CommandOptionType.SUB_COMMAND_GROUP,
+    CommandOptionType.STRING,
+    CommandOptionType.INTEGER,
+    CommandOptionType.BOOLEAN,
+    CommandOptionType.USER,
+    CommandOptionType.CHANNEL,
+    CommandOptionType.ROLE,
+    CommandOptionType.MENTIONABLE,
+    CommandOptionType.NUMBER,
+    CommandOptionType.ATTACHMENT
+  ]);
 
 export const mockSaveCommandParams = (): SaveCommandParams => {
   return {
     name: faker.word.noun(),
-    type: makeCommandOptionType(),
+    type: mockApplicationCommandType(),
     description: faker.lorem.words(),
     options: [
       {
         name: faker.word.noun(),
         description: faker.lorem.words(),
-        type: makeCommandOptionType(),
+        type: mockCommandOptionType(),
         required: faker.datatype.boolean(),
         choices: [
           {
@@ -33,7 +52,7 @@ export const mockSaveCommandParams = (): SaveCommandParams => {
       {
         name: faker.word.noun(),
         description: faker.lorem.words(),
-        type: makeCommandOptionType(),
+        type: mockCommandOptionType(),
         required: faker.datatype.boolean()
       }
     ]

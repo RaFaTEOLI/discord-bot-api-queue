@@ -4,6 +4,7 @@ import { HttpStatusCode } from '@/data/protocols/http';
 import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
 import { faker } from '@faker-js/faker';
 import { mockMusicModel } from '@/domain/test/mock-music';
+import { describe, test, expect } from 'vitest';
 
 type SutTypes = {
   sut: RemoteSaveMusic;
