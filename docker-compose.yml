@@ -10,8 +10,8 @@ services:
       - RABBITMQ_DEFAULT_USER=${AMQP_USERNAME}
       - RABBITMQ_DEFAULT_PASS=${AMQP_PASSWORD}
     volumes:
-      - ~/.docker-conf/rabbitmq/data/:/home/rafael/projects/discord-bot-api-queue/Docker/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/home/rafael/projects/discord-bot-api-queue/Docker/log/rabbitmq
+      - ~/.docker-conf/rabbitmq/data/:${PROJECT_PATH}/Docker/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:${PROJECT_PATH}/Docker/log/rabbitmq
     networks:
       - rabbitmq_api_queue_net
 
@@ -20,14 +20,18 @@ services:
     image: node:16
     working_dir: ${PROJECT_PATH}/Docker/discord-bot-api-queue
     restart: always
-    command: bash -c "npm install && npm run build && npm run debug"
+    command: bash -c "npm install && npm run debug"
     environment:
       - AMQP_USERNAME=discord-bot-api-queue
       - AMQP_PASSWORD=password
       - AMQP_PORT=5672
       - AMQP_ADRESS=rabbitmq
       - BOT_API_URL=http://localhost:5050/api
-      - BOT_API_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzNjUzMjhlZTU2ZDhlNzJiZWIyZDI0MiIsImlhdCI6MTY4MDY5NzM3Nn0.H-v_y-k29j9luYL2hFid29l5GFnZxCO7iF3E2PPBYSA
+      - BOT_API_TOKEN={$BOT_API_TOKEN}
+      - DISCORD_APPLICATION_ID={$DISCORD_APPLICATION_ID}
+      - DISCORD_API_URL={$DISCORD_API_URL}
+      - DISCORD_BOT_TOKEN={$DISCORD_BOT_TOKEN}
+      - PROJECT_PATH={$PROJECT_PATH}
     volumes:
       - ./dist/:${PROJECT_PATH}/Docker/discord-bot-api-queue/dist
       - ./package.json:${PROJECT_PATH}/Docker/discord-bot-api-queue/package.json
