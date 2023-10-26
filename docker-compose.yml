@@ -20,7 +20,7 @@ services:
     image: node:16
     working_dir: ${PROJECT_PATH}/Docker/discord-bot-api-queue
     restart: always
-    command: bash -c "npm install && npm run debug"
+    command: bash -c "npm install --force && npm run debug"
     environment:
       - AMQP_USERNAME=discord-bot-api-queue
       - AMQP_PASSWORD=password
