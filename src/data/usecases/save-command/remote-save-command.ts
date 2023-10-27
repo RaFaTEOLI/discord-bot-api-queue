@@ -13,7 +13,7 @@ export class RemoteSaveCommand implements SaveCommand {
       body: data
     });
     switch (httpResponse.statusCode) {
-      case HttpStatusCode.noContent:
+      case HttpStatusCode.success:
         return;
       case HttpStatusCode.forbidden:
         throw new AccessDeniedError();
