@@ -1,10 +1,11 @@
+import 'module-alias/register';
 import { connect } from 'amqplib';
 import 'dotenv/config';
 import {
   makeRemoteSaveMusicFactory,
   makeRemoteSaveQueueFactory,
   makeRemoteSaveCommandFactory
-} from './factories/usecases';
+} from '@/main/factories/usecases';
 import { type AmqpQueue } from '@/domain/models';
 
 const queues: AmqpQueue[] = [
@@ -37,6 +38,7 @@ void (async () => {
             const payload = JSON.parse(message.content.toString());
             await queue.factory.save(payload);
             channel.ack(message);
+            console.log(`☑️ [${queue.action}] Acknowledged '%s'`, message.content.toString());
           } catch (err) {
             console.error('❌ Error while trying to call factory:', err.message);
           }

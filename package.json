@@ -7,10 +7,10 @@
   "license": "MIT",
   "scripts": {
     "prepare": "husky install",
-    "start": "node dist/main/server.js",
-    "dev": "tsnd -r tsconfig-paths/register --inspect --transpile-only --ignore node_modules src/main/server.ts",
+    "start": "tsx src/main/server.ts",
+    "dev": "tsx watch src/main/server.ts",
     "build": "rimraf dist && tsc -p tsconfig-build.json",
-    "debug": "nodemon -L --watch ./dist --inspect=0.0.0.0:8222 --nolazy ./dist/main/server.js",
+    "debug": "tsx watch --inspect=0.0.0.0:8222 --nolazy src/main/server.ts",
     "up": "yarn build && docker-compose up -d",
     "down": "docker-compose down",
     "test": "vitest --run --passWithNoTests --silent",
@@ -31,15 +31,15 @@
     "git-commit-msg-linter": "^5.0.4",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.2",
-    "nodemon": "^2.0.22",
-    "ts-node-dev": "^2.0.0",
+    "tsx": "^3.14.0",
     "typescript": "*",
     "vitest": "^0.34.6"
   },
   "dependencies": {
     "amqplib": "^0.10.3",
     "axios": "^1.4.0",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "module-alias": "^2.2.3"
   },
   "engines": {
     "node": ">=16.x"

@@ -21,7 +21,7 @@ export enum CommandOptionType {
 export type SaveCommandParams = {
   name: string;
   type: ApplicationCommandType;
-  description: string;
+  description?: string;
   options?: Array<{
     name: string;
     description: string;
