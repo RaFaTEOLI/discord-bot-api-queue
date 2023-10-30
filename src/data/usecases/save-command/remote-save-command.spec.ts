@@ -27,7 +27,7 @@ describe('RemoteSaveCommand', () => {
     const { sut, httpClientSpy } = makeSut(url);
     const body = mockSaveCommandParams();
     httpClientSpy.response = {
-      statusCode: HttpStatusCode.noContent
+      statusCode: HttpStatusCode.success
     };
     await sut.save(body);
     expect(httpClientSpy.url).toBe(url);
