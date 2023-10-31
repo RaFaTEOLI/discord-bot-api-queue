@@ -4,7 +4,7 @@ import { type HttpRequest, type HttpResponse, HttpStatusCode, type HttpClient } 
 
 export const mockHttpRequest = (): HttpRequest => ({
   url: faker.internet.url(),
-  method: faker.helpers.arrayElement(['get', 'post', 'put', 'delete']),
+  method: faker.helpers.arrayElement(['get', 'post', 'put', 'delete', 'patch']),
   body: faker.datatype.json(),
   headers: faker.datatype.json(),
   params: faker.datatype.json()
