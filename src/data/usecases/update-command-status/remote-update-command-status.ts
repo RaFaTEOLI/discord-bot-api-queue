@@ -1,15 +1,16 @@
 import { type HttpClient, HttpStatusCode } from '@/data/protocols/http';
 import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
-import { type SaveCommand, type SaveCommandParams } from '@/domain/usecases';
+import { type MusicModel } from '@/domain/models/music';
+import { type CommandStatus, type UpdateCommandStatus } from '@/domain/usecases';
 
-export class RemoteSaveCommand implements SaveCommand {
-  constructor(private readonly url: string, private readonly httpGetClient: HttpClient<any>) {}
+export class RemoteUpdateCommandStatus implements UpdateCommandStatus {
+  constructor(private readonly url: string, private readonly httpGetClient: HttpClient<MusicModel>) {}
 
-  async save(data: SaveCommandParams): Promise<void> {
+  async update(status: CommandStatus): Promise<void> {
     const httpResponse = await this.httpGetClient.request({
       url: this.url,
-      method: 'post',
-      body: data
+      method: 'patch',
+      body: { discordStatus: status }
     });
     switch (httpResponse.statusCode) {
       case HttpStatusCode.success:
