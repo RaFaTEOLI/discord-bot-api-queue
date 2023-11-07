@@ -4,5 +4,5 @@ export enum CommandStatus {
 }
 
 export interface UpdateCommandStatus {
-  update: (status: CommandStatus) => Promise<void>;
+  update: (id: string, status: CommandStatus) => Promise<void>;
 }
