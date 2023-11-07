@@ -6,14 +6,14 @@ import { type CommandStatus, type UpdateCommandStatus } from '@/domain/usecases'
 export class RemoteUpdateCommandStatus implements UpdateCommandStatus {
   constructor(private readonly url: string, private readonly httpGetClient: HttpClient<MusicModel>) {}
 
-  async update(status: CommandStatus): Promise<void> {
+  async update(id: string, status: CommandStatus): Promise<void> {
     const httpResponse = await this.httpGetClient.request({
-      url: this.url,
+      url: `${this.url}/${id}`,
       method: 'patch',
       body: { discordStatus: status }
     });
     switch (httpResponse.statusCode) {
-      case HttpStatusCode.success:
+      case HttpStatusCode.noContent:
         return;
       case HttpStatusCode.forbidden:
         throw new AccessDeniedError();
