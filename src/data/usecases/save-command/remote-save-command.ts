@@ -33,7 +33,11 @@ export class RemoteSaveCommand implements SaveCommand {
       body: data
     });
 
+    console.log(httpResponse);
+
     switch (httpResponse.statusCode) {
+      case HttpStatusCode.success:
+        return;
       case HttpStatusCode.created:
         return;
       case HttpStatusCode.forbidden:
