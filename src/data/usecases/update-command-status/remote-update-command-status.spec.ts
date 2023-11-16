@@ -33,7 +33,7 @@ describe('RemoteUpdateCommandStatus', () => {
     const { sut, httpClientSpy } = makeSut(url);
     const body = mockRequest();
     httpClientSpy.response = {
-      statusCode: HttpStatusCode.success
+      statusCode: HttpStatusCode.noContent
     };
     await sut.update(body.id, body.status);
     expect(httpClientSpy.url).toBe(`${url}/${body.id}`);

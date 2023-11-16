@@ -2,74 +2,148 @@ import { HttpClientSpy } from '@/data/test';
 import { RemoteSaveCommand } from './remote-save-command';
 import { HttpStatusCode } from '@/data/protocols/http';
 import { faker } from '@faker-js/faker';
-import { mockSaveCommandParams } from '@/domain/test';
+import { mockDiscordCommandModel, mockSaveCommandParams } from '@/domain/test';
 import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
 import { describe, test, expect } from 'vitest';
+import { type DiscordCommandModel } from '@/domain/models';
 
 type SutTypes = {
   sut: RemoteSaveCommand;
   httpClientSpy: HttpClientSpy;
+  saveHttpGetClient: HttpClientSpy;
 };
+
+const mockBody = (): DiscordCommandModel[] => [mockDiscordCommandModel(), mockDiscordCommandModel()];
 
 const makeSut = (url = faker.internet.url()): SutTypes => {
   const httpClientSpy = new HttpClientSpy();
-  const sut = new RemoteSaveCommand(url, httpClientSpy);
+  const saveHttpGetClient = new HttpClientSpy();
+  const sut = new RemoteSaveCommand(url, httpClientSpy, saveHttpGetClient);
 
   return {
     sut,
-    httpClientSpy
+    httpClientSpy,
+    saveHttpGetClient
   };
 };
 
 describe('RemoteSaveCommand', () => {
   test('should call HttpClient with correct URL and Method', async () => {
     const url = faker.internet.url();
-    const { sut, httpClientSpy } = makeSut(url);
-    const body = mockSaveCommandParams();
+    const { sut, httpClientSpy, saveHttpGetClient } = makeSut(url);
     httpClientSpy.response = {
       statusCode: HttpStatusCode.success
     };
-    await sut.save(body);
+    saveHttpGetClient.response = {
+      statusCode: HttpStatusCode.created
+    };
+    await sut.save(mockSaveCommandParams());
     expect(httpClientSpy.url).toBe(url);
-    expect(httpClientSpy.method).toBe('post');
-    expect(httpClientSpy.body).toEqual(body);
+    expect(httpClientSpy.method).toBe('get');
   });
 
-  test('should throw AccessDeniedError if HttpClient returns 403', async () => {
-    const { sut, httpClientSpy } = makeSut();
+  test('should call SaveHttpClient with correct URL and Method', async () => {
+    const url = faker.internet.url();
+    const { sut, httpClientSpy, saveHttpGetClient } = makeSut(url);
+    const body = mockSaveCommandParams();
     httpClientSpy.response = {
+      statusCode: HttpStatusCode.success,
+      body: mockBody()
+    };
+    saveHttpGetClient.response = {
+      statusCode: HttpStatusCode.created
+    };
+    await sut.save(body);
+    expect(saveHttpGetClient.url).toBe(url);
+    expect(saveHttpGetClient.method).toBe('post');
+    expect(saveHttpGetClient.body).toEqual(body);
+  });
+
+  test('should throw AccessDeniedError if SaveHttpClient returns 403', async () => {
+    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.success,
+      body: mockBody()
+    };
+    saveHttpGetClient.response = {
       statusCode: HttpStatusCode.forbidden
     };
     const promise = sut.save(mockSaveCommandParams());
     await expect(promise).rejects.toThrow(new AccessDeniedError());
   });
 
-  test('should throw UnexpectedError if HttpClient returns 404', async () => {
-    const { sut, httpClientSpy } = makeSut();
+  test('should throw UnexpectedError if SaveHttpClient returns 404', async () => {
+    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
     httpClientSpy.response = {
+      statusCode: HttpStatusCode.success,
+      body: mockBody()
+    };
+    saveHttpGetClient.response = {
       statusCode: HttpStatusCode.notFound
     };
     const promise = sut.save(mockSaveCommandParams());
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 
-  test('should throw UnexpectedError if HttpClient returns 500', async () => {
-    const { sut, httpClientSpy } = makeSut();
+  test('should throw UnexpectedError if SaveHttpClient returns 500', async () => {
+    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
     httpClientSpy.response = {
+      statusCode: HttpStatusCode.success,
+      body: mockBody()
+    };
+    saveHttpGetClient.response = {
       statusCode: HttpStatusCode.serverError
     };
     const promise = sut.save(mockSaveCommandParams());
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 
-  test('should return void if HttpClient returns 201', async () => {
-    const { sut, httpClientSpy } = makeSut();
+  test('should return void if SaveHttpClient returns 201', async () => {
+    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
     const httpResult = mockSaveCommandParams();
     httpClientSpy.response = {
+      statusCode: HttpStatusCode.success,
+      body: []
+    };
+    saveHttpGetClient.response = {
       statusCode: HttpStatusCode.created,
       body: httpResult
     };
     const response = await sut.save(mockSaveCommandParams());
     expect(response).toBeFalsy();
+  });
+
+  test('should call SaveHttpClient with Patch when a command is found', async () => {
+    const url = faker.internet.url();
+    const { sut, httpClientSpy, saveHttpGetClient } = makeSut(url);
+    const body = mockSaveCommandParams();
+    const commandModel = mockDiscordCommandModel();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.success,
+      body: [{ ...commandModel, name: body.name }]
+    };
+    saveHttpGetClient.response = {
+      statusCode: HttpStatusCode.created
+    };
+    await sut.save(body);
+    expect(saveHttpGetClient.url).toBe(url);
+    expect(saveHttpGetClient.method).toBe('patch');
+    expect(saveHttpGetClient.body).toEqual(body);
+  });
+
+  test('should call SaveHttpClient with correct URL and Method even if HttpClient fails', async () => {
+    const url = faker.internet.url();
+    const { sut, httpClientSpy, saveHttpGetClient } = makeSut(url);
+    const body = mockSaveCommandParams();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.serverError
+    };
+    saveHttpGetClient.response = {
+      statusCode: HttpStatusCode.created
+    };
+    await sut.save(body);
+    expect(saveHttpGetClient.url).toBe(url);
+    expect(saveHttpGetClient.method).toBe('post');
+    expect(saveHttpGetClient.body).toEqual(body);
   });
 });

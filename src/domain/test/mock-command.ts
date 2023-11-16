@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ApplicationCommandType, CommandOptionType, type SaveCommandParams } from '@/domain/usecases';
+import { type DiscordCommandModel } from '@/domain/models';
 
 export const mockApplicationCommandType = (): ApplicationCommandType =>
   faker.helpers.arrayElement([
@@ -56,5 +57,23 @@ export const mockSaveCommandParams = (): SaveCommandParams => {
         required: faker.datatype.boolean()
       }
     ]
+  };
+};
+
+export const mockDiscordCommandModel = (): DiscordCommandModel => {
+  return {
+    id: faker.datatype.uuid(),
+    application_id: faker.datatype.uuid(),
+    version: faker.datatype.uuid(),
+    default_member_permissions: null,
+    type: mockApplicationCommandType(),
+    name: faker.word.noun(),
+    name_localizations: null,
+    description: faker.lorem.words(),
+    description_localizations: null,
+    dm_permission: true,
+    contexts: null,
+    integration_types: [0],
+    nsfw: false
   };
 };
