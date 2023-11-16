@@ -126,7 +126,7 @@ describe('RemoteSaveCommand', () => {
       statusCode: HttpStatusCode.created
     };
     await sut.save(body);
-    expect(saveHttpGetClient.url).toBe(url);
+    expect(saveHttpGetClient.url).toBe(`${url}/${commandModel.id}`);
     expect(saveHttpGetClient.method).toBe('patch');
     expect(saveHttpGetClient.body).toEqual(body);
   });
