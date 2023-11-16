@@ -146,4 +146,19 @@ describe('RemoteSaveCommand', () => {
     expect(saveHttpGetClient.method).toBe('post');
     expect(saveHttpGetClient.body).toEqual(body);
   });
+
+  test('should return void if SaveHttpClient returns 200', async () => {
+    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
+    const httpResult = mockSaveCommandParams();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.success,
+      body: []
+    };
+    saveHttpGetClient.response = {
+      statusCode: HttpStatusCode.success,
+      body: httpResult
+    };
+    const response = await sut.save(mockSaveCommandParams());
+    expect(response).toBeFalsy();
+  });
 });
