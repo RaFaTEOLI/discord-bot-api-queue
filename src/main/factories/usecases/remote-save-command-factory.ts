@@ -4,5 +4,9 @@ import { makeDiscordAuthorizeHttpClientDecorator } from '@/main/factories/decora
 import { type SaveCommand } from '@/domain/usecases';
 
 export const makeRemoteSaveCommandFactory = (): SaveCommand => {
-  return new RemoteSaveCommand(makeDiscordApiUrl('/commands'), makeDiscordAuthorizeHttpClientDecorator());
+  return new RemoteSaveCommand(
+    makeDiscordApiUrl('/commands'),
+    makeDiscordAuthorizeHttpClientDecorator(),
+    makeDiscordAuthorizeHttpClientDecorator()
+  );
 };
