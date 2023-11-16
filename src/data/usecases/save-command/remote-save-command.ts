@@ -16,17 +16,19 @@ export class RemoteSaveCommand implements SaveCommand {
       method: 'get'
     });
 
+    let url: string = this.url;
     let method: HttpMethod = 'post';
 
     if (getCommandsHttpResponse.statusCode === HttpStatusCode.success) {
       const command = getCommandsHttpResponse.body?.find(command => command.name === data.name);
-      if (command) {
+      if (command?.id) {
+        url = `${this.url}/${command.id}`;
         method = 'patch';
       }
     }
 
     const httpResponse = await this.saveHttpGetClient.request({
-      url: this.url,
+      url,
       method,
       body: data
     });
