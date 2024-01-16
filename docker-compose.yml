@@ -2,7 +2,7 @@ version: '3.2'
 services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: 'rabbitmq'
+    container_name: 'queue-service'
     ports:
       - 5672:5672
       - 15672:15672
@@ -16,8 +16,8 @@ services:
       - rabbitmq_api_queue_net
 
   api-queue:
-    container_name: api-queue-container
-    image: node:16
+    container_name: nodejs-service
+    image: node:18
     working_dir: ${PROJECT_PATH}/Docker/discord-bot-api-queue
     restart: always
     command: bash -c "npm install --force && npm run debug"
