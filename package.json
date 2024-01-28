@@ -11,8 +11,8 @@
     "dev": "tsx watch src/main/server.ts",
     "build": "rimraf dist && tsc -p tsconfig-build.json",
     "debug": "tsx watch --inspect=0.0.0.0:8222 --nolazy src/main/server.ts",
-    "up": "yarn build && docker-compose up -d",
-    "down": "docker-compose down",
+    "up": "yarn build && docker compose up -d",
+    "down": "docker compose down",
     "test": "vitest --run --passWithNoTests --silent",
     "test:staged": "yarn test related",
     "test:ci": "yarn test --coverage"
