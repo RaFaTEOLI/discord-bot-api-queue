@@ -3,6 +3,11 @@ export enum CommandStatus {
   FAILED = 'FAILED'
 }
 
+export type UpdateCommandParams = {
+  discordId?: string;
+  discordStatus: CommandStatus;
+};
+
 export interface UpdateCommandStatus {
-  update: (id: string, status: CommandStatus) => Promise<void>;
+  update: (id: string, params: UpdateCommandParams) => Promise<void>;
 }

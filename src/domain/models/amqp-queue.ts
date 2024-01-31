@@ -3,7 +3,7 @@ import {
   type SaveCommand,
   type SaveMusic,
   type SaveQueue,
-  type CommandStatus
+  type UpdateCommandParams
 } from '@/domain/usecases';
 
 export type AmqpQueue = {
@@ -12,7 +12,7 @@ export type AmqpQueue = {
   ack?: {
     function: UpdateCommandStatus;
     functionName: 'update';
-    successPayload: CommandStatus;
-    failPayload: CommandStatus;
+    successPayload: (discordId: string) => UpdateCommandParams;
+    failPayload: UpdateCommandParams;
   };
 };

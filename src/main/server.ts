@@ -19,8 +19,11 @@ const queues: AmqpQueue[] = [
     ack: {
       functionName: 'update',
       function: makeRemoteUpdateCommandStatusFactory(),
-      successPayload: CommandStatus.RECEIVED,
-      failPayload: CommandStatus.FAILED
+      successPayload: (discordId: string) => ({
+        discordStatus: CommandStatus.RECEIVED,
+        discordId
+      }),
+      failPayload: { discordStatus: CommandStatus.FAILED }
     }
   }
 ];
@@ -54,6 +57,7 @@ void (async () => {
               delete payload.id;
             }
 
+            // TODO: use value from here to pass it into the successPayload function on line 68
             await queue.factory.save(payload);
 
             channel.ack(message);
@@ -61,7 +65,7 @@ void (async () => {
 
             if (queue.ack) {
               try {
-                await queue.ack.function[queue.ack.functionName](id, queue.ack.successPayload);
+                await queue.ack.function[queue.ack.functionName](id, queue.ack.successPayload('any_value'));
                 console.log(`☑️ [${queue.action}] Acknowledged Function '%s'`, queue.ack.functionName);
               } catch (err) {
                 console.error('❌ Error while trying to call acknowledge function:', err.message);
