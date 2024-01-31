@@ -98,19 +98,19 @@ describe('RemoteSaveCommand', () => {
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 
-  test('should return void if SaveHttpClient returns 201', async () => {
+  test('should return DiscordCommandModel if SaveHttpClient returns 201', async () => {
     const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
-    const httpResult = mockSaveCommandParams();
+    const discordCommandModel = mockDiscordCommandModel();
     httpClientSpy.response = {
       statusCode: HttpStatusCode.success,
       body: []
     };
     saveHttpGetClient.response = {
       statusCode: HttpStatusCode.created,
-      body: httpResult
+      body: discordCommandModel
     };
     const response = await sut.save(mockSaveCommandParams());
-    expect(response).toBeFalsy();
+    expect(response.id).toBe(discordCommandModel.id);
   });
 
   test('should call SaveHttpClient with Patch when a command is found', async () => {
@@ -147,18 +147,18 @@ describe('RemoteSaveCommand', () => {
     expect(saveHttpGetClient.body).toEqual(body);
   });
 
-  test('should return void if SaveHttpClient returns 200', async () => {
+  test('should return DiscordCommandModel if SaveHttpClient returns 200', async () => {
     const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
-    const httpResult = mockSaveCommandParams();
+    const discordCommandModel = mockDiscordCommandModel();
     httpClientSpy.response = {
       statusCode: HttpStatusCode.success,
       body: []
     };
     saveHttpGetClient.response = {
       statusCode: HttpStatusCode.success,
-      body: httpResult
+      body: discordCommandModel
     };
     const response = await sut.save(mockSaveCommandParams());
-    expect(response).toBeFalsy();
+    expect(response.id).toBe(discordCommandModel.id);
   });
 });
