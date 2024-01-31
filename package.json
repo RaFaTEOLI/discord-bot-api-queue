@@ -31,7 +31,7 @@
     "git-commit-msg-linter": "^5.0.4",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.2",
-    "tsx": "^3.14.0",
+    "tsx": "^4.7.0",
     "typescript": "*",
     "vitest": "^0.34.6"
   },
