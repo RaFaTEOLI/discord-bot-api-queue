@@ -5,16 +5,19 @@ import { faker } from '@faker-js/faker';
 import { mockSaveCommandParams } from '@/domain/test';
 import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
 import { describe, test, expect } from 'vitest';
-import { CommandStatus } from '@/domain/usecases';
+import { CommandStatus, type UpdateCommandParams } from '@/domain/usecases';
 
 type SutTypes = {
   sut: RemoteUpdateCommandStatus;
   httpClientSpy: HttpClientSpy;
 };
 
-const mockRequest = (): { id: string; status: CommandStatus } => ({
+const mockRequest = (): { id: string; params: UpdateCommandParams } => ({
   id: faker.datatype.uuid(),
-  status: faker.helpers.arrayElement([CommandStatus.RECEIVED, CommandStatus.FAILED])
+  params: {
+    discordId: faker.datatype.uuid(),
+    discordStatus: faker.helpers.arrayElement([CommandStatus.RECEIVED, CommandStatus.FAILED])
+  }
 });
 
 const makeSut = (url = faker.internet.url()): SutTypes => {
@@ -35,10 +38,10 @@ describe('RemoteUpdateCommandStatus', () => {
     httpClientSpy.response = {
       statusCode: HttpStatusCode.noContent
     };
-    await sut.update(body.id, body.status);
+    await sut.update(body.id, body.params);
     expect(httpClientSpy.url).toBe(`${url}/${body.id}`);
     expect(httpClientSpy.method).toBe('patch');
-    expect(httpClientSpy.body).toEqual({ discordStatus: body.status });
+    expect(httpClientSpy.body).toEqual(body.params);
   });
 
   test('should throw AccessDeniedError if HttpClient returns 403', async () => {
@@ -47,7 +50,7 @@ describe('RemoteUpdateCommandStatus', () => {
       statusCode: HttpStatusCode.forbidden
     };
     const body = mockRequest();
-    const promise = sut.update(body.id, body.status);
+    const promise = sut.update(body.id, body.params);
     await expect(promise).rejects.toThrow(new AccessDeniedError());
   });
 
@@ -57,7 +60,7 @@ describe('RemoteUpdateCommandStatus', () => {
       statusCode: HttpStatusCode.notFound
     };
     const body = mockRequest();
-    const promise = sut.update(body.id, body.status);
+    const promise = sut.update(body.id, body.params);
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 
@@ -67,7 +70,7 @@ describe('RemoteUpdateCommandStatus', () => {
       statusCode: HttpStatusCode.serverError
     };
     const body = mockRequest();
-    const promise = sut.update(body.id, body.status);
+    const promise = sut.update(body.id, body.params);
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 
@@ -79,7 +82,20 @@ describe('RemoteUpdateCommandStatus', () => {
       body: httpResult
     };
     const body = mockRequest();
-    const response = await sut.update(body.id, body.status);
+    const response = await sut.update(body.id, body.params);
+    expect(response).toBeFalsy();
+  });
+
+  test('should call HttpClient with discordStatus only, when no discordId is provided', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    const httpResult = mockSaveCommandParams();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.noContent,
+      body: httpResult
+    };
+    const body = mockRequest();
+    delete body.params.discordId;
+    const response = await sut.update(body.id, body.params);
     expect(response).toBeFalsy();
   });
 });
