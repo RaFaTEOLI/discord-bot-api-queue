@@ -7,10 +7,10 @@ export class RemoteSaveCommand implements SaveCommand {
   constructor(
     private readonly url: string,
     private readonly httpGetClient: HttpClient<DiscordCommandModel[]>,
-    private readonly saveHttpGetClient: HttpClient<any>
+    private readonly saveHttpGetClient: HttpClient<DiscordCommandModel>
   ) {}
 
-  async save(data: SaveCommandParams): Promise<void> {
+  async save(data: SaveCommandParams): Promise<DiscordCommandModel> {
     const getCommandsHttpResponse = await this.httpGetClient.request({
       url: this.url,
       method: 'get'
@@ -35,9 +35,9 @@ export class RemoteSaveCommand implements SaveCommand {
 
     switch (httpResponse.statusCode) {
       case HttpStatusCode.success:
-        return;
+        return httpResponse.body;
       case HttpStatusCode.created:
-        return;
+        return httpResponse.body;
       case HttpStatusCode.forbidden:
         throw new AccessDeniedError();
       default:
