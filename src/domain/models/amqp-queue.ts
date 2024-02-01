@@ -9,6 +9,7 @@ import {
 export type AmqpQueue = {
   action: 'music' | 'queue' | 'command';
   factory: SaveQueue | SaveMusic | SaveCommand;
+  response?: boolean;
   ack?: {
     function: UpdateCommand;
     functionName: 'update';
