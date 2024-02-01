@@ -1,3 +1,5 @@
+import { type DiscordCommandModel } from '@/domain/models';
+
 export enum ApplicationCommandType {
   CHAT_INPUT = 1,
   USER = 2,
@@ -22,6 +24,7 @@ export type SaveCommandParams = {
   name: string;
   type: ApplicationCommandType;
   description?: string;
+  discordId?: string;
   options?: Array<{
     name: string;
     description: string;
@@ -35,5 +38,5 @@ export type SaveCommandParams = {
 };
 
 export interface SaveCommand {
-  save: (data: SaveCommandParams) => Promise<void>;
+  save: (data: SaveCommandParams) => Promise<DiscordCommandModel>;
 }

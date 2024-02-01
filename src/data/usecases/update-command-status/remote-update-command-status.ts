@@ -1,16 +1,16 @@
 import { type HttpClient, HttpStatusCode } from '@/data/protocols/http';
 import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
 import { type MusicModel } from '@/domain/models/music';
-import { type CommandStatus, type UpdateCommandStatus } from '@/domain/usecases';
+import { type UpdateCommandParams, type UpdateCommand } from '@/domain/usecases';
 
-export class RemoteUpdateCommandStatus implements UpdateCommandStatus {
+export class RemoteUpdateCommand implements UpdateCommand {
   constructor(private readonly url: string, private readonly httpGetClient: HttpClient<MusicModel>) {}
 
-  async update(id: string, status: CommandStatus): Promise<void> {
+  async update(id: string, params: UpdateCommandParams): Promise<void> {
     const httpResponse = await this.httpGetClient.request({
       url: `${this.url}/${id}`,
       method: 'patch',
-      body: { discordStatus: status }
+      body: { discordStatus: params.discordStatus, ...(params.discordId && { discordId: params.discordId }) }
     });
     switch (httpResponse.statusCode) {
       case HttpStatusCode.noContent:

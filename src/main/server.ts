@@ -5,7 +5,7 @@ import {
   makeRemoteSaveMusicFactory,
   makeRemoteSaveQueueFactory,
   makeRemoteSaveCommandFactory,
-  makeRemoteUpdateCommandStatusFactory
+  makeRemoteUpdateCommandFactory
 } from '@/main/factories/usecases';
 import { type AmqpQueue } from '@/domain/models';
 import { CommandStatus } from '@/domain/usecases';
@@ -16,11 +16,15 @@ const queues: AmqpQueue[] = [
   {
     action: 'command',
     factory: makeRemoteSaveCommandFactory(),
+    response: true,
     ack: {
       functionName: 'update',
-      function: makeRemoteUpdateCommandStatusFactory(),
-      successPayload: CommandStatus.RECEIVED,
-      failPayload: CommandStatus.FAILED
+      function: makeRemoteUpdateCommandFactory(),
+      successPayload: (discordId: string) => ({
+        discordStatus: CommandStatus.RECEIVED,
+        discordId
+      }),
+      failPayload: { discordStatus: CommandStatus.FAILED }
     }
   }
 ];
@@ -46,6 +50,7 @@ void (async () => {
         async message => {
           console.log(`📥 [${queue.action}] Received '%s'`, message.content.toString());
           let id = null;
+          let response = null;
           try {
             const payload = JSON.parse(message.content.toString());
 
@@ -54,14 +59,18 @@ void (async () => {
               delete payload.id;
             }
 
-            await queue.factory.save(payload);
+            if (queue.response) {
+              response = await queue.factory.save(payload);
+            } else {
+              await queue.factory.save(payload);
+            }
 
             channel.ack(message);
             console.log(`☑️ [${queue.action}] Acknowledged '%s'`, message.content.toString());
 
             if (queue.ack) {
               try {
-                await queue.ack.function[queue.ack.functionName](id, queue.ack.successPayload);
+                await queue.ack.function[queue.ack.functionName](id, queue.ack.successPayload(response.id));
                 console.log(`☑️ [${queue.action}] Acknowledged Function '%s'`, queue.ack.functionName);
               } catch (err) {
                 console.error('❌ Error while trying to call acknowledge function:', err.message);

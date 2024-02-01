@@ -10,155 +10,93 @@ import { type DiscordCommandModel } from '@/domain/models';
 type SutTypes = {
   sut: RemoteSaveCommand;
   httpClientSpy: HttpClientSpy;
-  saveHttpGetClient: HttpClientSpy;
 };
 
 const mockBody = (): DiscordCommandModel[] => [mockDiscordCommandModel(), mockDiscordCommandModel()];
 
 const makeSut = (url = faker.internet.url()): SutTypes => {
   const httpClientSpy = new HttpClientSpy();
-  const saveHttpGetClient = new HttpClientSpy();
-  const sut = new RemoteSaveCommand(url, httpClientSpy, saveHttpGetClient);
+  const sut = new RemoteSaveCommand(url, httpClientSpy);
 
   return {
     sut,
-    httpClientSpy,
-    saveHttpGetClient
+    httpClientSpy
   };
 };
 
 describe('RemoteSaveCommand', () => {
   test('should call HttpClient with correct URL and Method', async () => {
     const url = faker.internet.url();
-    const { sut, httpClientSpy, saveHttpGetClient } = makeSut(url);
+    const { sut, httpClientSpy } = makeSut(url);
     httpClientSpy.response = {
-      statusCode: HttpStatusCode.success
-    };
-    saveHttpGetClient.response = {
       statusCode: HttpStatusCode.created
     };
     await sut.save(mockSaveCommandParams());
     expect(httpClientSpy.url).toBe(url);
-    expect(httpClientSpy.method).toBe('get');
+    expect(httpClientSpy.method).toBe('post');
   });
 
-  test('should call SaveHttpClient with correct URL and Method', async () => {
+  test('should call HttpClient with correct URL and Method when discordId is provided', async () => {
     const url = faker.internet.url();
-    const { sut, httpClientSpy, saveHttpGetClient } = makeSut(url);
+    const { sut, httpClientSpy } = makeSut(url);
     const body = mockSaveCommandParams();
+    body.discordId = faker.datatype.uuid();
     httpClientSpy.response = {
       statusCode: HttpStatusCode.success,
       body: mockBody()
-    };
-    saveHttpGetClient.response = {
-      statusCode: HttpStatusCode.created
     };
     await sut.save(body);
-    expect(saveHttpGetClient.url).toBe(url);
-    expect(saveHttpGetClient.method).toBe('post');
-    expect(saveHttpGetClient.body).toEqual(body);
+    expect(httpClientSpy.url).toBe(`${url}/${body.discordId}`);
+    expect(httpClientSpy.method).toBe('patch');
+    expect(httpClientSpy.body).toEqual(body);
   });
 
-  test('should throw AccessDeniedError if SaveHttpClient returns 403', async () => {
-    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
+  test('should throw AccessDeniedError if HttpClient returns 403', async () => {
+    const { sut, httpClientSpy } = makeSut();
     httpClientSpy.response = {
-      statusCode: HttpStatusCode.success,
-      body: mockBody()
-    };
-    saveHttpGetClient.response = {
       statusCode: HttpStatusCode.forbidden
     };
     const promise = sut.save(mockSaveCommandParams());
     await expect(promise).rejects.toThrow(new AccessDeniedError());
   });
 
-  test('should throw UnexpectedError if SaveHttpClient returns 404', async () => {
-    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
+  test('should throw UnexpectedError if HttpClient returns 404', async () => {
+    const { sut, httpClientSpy } = makeSut();
     httpClientSpy.response = {
-      statusCode: HttpStatusCode.success,
-      body: mockBody()
-    };
-    saveHttpGetClient.response = {
       statusCode: HttpStatusCode.notFound
     };
     const promise = sut.save(mockSaveCommandParams());
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 
-  test('should throw UnexpectedError if SaveHttpClient returns 500', async () => {
-    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
+  test('should throw UnexpectedError if HttpClient returns 500', async () => {
+    const { sut, httpClientSpy } = makeSut();
     httpClientSpy.response = {
-      statusCode: HttpStatusCode.success,
-      body: mockBody()
-    };
-    saveHttpGetClient.response = {
       statusCode: HttpStatusCode.serverError
     };
     const promise = sut.save(mockSaveCommandParams());
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 
-  test('should return void if SaveHttpClient returns 201', async () => {
-    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
-    const httpResult = mockSaveCommandParams();
+  test('should return DiscordCommandModel if HttpClient returns 201', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    const discordCommandModel = mockDiscordCommandModel();
     httpClientSpy.response = {
-      statusCode: HttpStatusCode.success,
-      body: []
-    };
-    saveHttpGetClient.response = {
       statusCode: HttpStatusCode.created,
-      body: httpResult
+      body: discordCommandModel
     };
     const response = await sut.save(mockSaveCommandParams());
-    expect(response).toBeFalsy();
+    expect(response.id).toBe(discordCommandModel.id);
   });
 
-  test('should call SaveHttpClient with Patch when a command is found', async () => {
-    const url = faker.internet.url();
-    const { sut, httpClientSpy, saveHttpGetClient } = makeSut(url);
-    const body = mockSaveCommandParams();
-    const commandModel = mockDiscordCommandModel();
+  test('should return DiscordCommandModel if SaveHttpClient returns 200', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    const discordCommandModel = mockDiscordCommandModel();
     httpClientSpy.response = {
       statusCode: HttpStatusCode.success,
-      body: [{ ...commandModel, name: body.name }]
-    };
-    saveHttpGetClient.response = {
-      statusCode: HttpStatusCode.created
-    };
-    await sut.save(body);
-    expect(saveHttpGetClient.url).toBe(`${url}/${commandModel.id}`);
-    expect(saveHttpGetClient.method).toBe('patch');
-    expect(saveHttpGetClient.body).toEqual(body);
-  });
-
-  test('should call SaveHttpClient with correct URL and Method even if HttpClient fails', async () => {
-    const url = faker.internet.url();
-    const { sut, httpClientSpy, saveHttpGetClient } = makeSut(url);
-    const body = mockSaveCommandParams();
-    httpClientSpy.response = {
-      statusCode: HttpStatusCode.serverError
-    };
-    saveHttpGetClient.response = {
-      statusCode: HttpStatusCode.created
-    };
-    await sut.save(body);
-    expect(saveHttpGetClient.url).toBe(url);
-    expect(saveHttpGetClient.method).toBe('post');
-    expect(saveHttpGetClient.body).toEqual(body);
-  });
-
-  test('should return void if SaveHttpClient returns 200', async () => {
-    const { sut, httpClientSpy, saveHttpGetClient } = makeSut();
-    const httpResult = mockSaveCommandParams();
-    httpClientSpy.response = {
-      statusCode: HttpStatusCode.success,
-      body: []
-    };
-    saveHttpGetClient.response = {
-      statusCode: HttpStatusCode.success,
-      body: httpResult
+      body: discordCommandModel
     };
     const response = await sut.save(mockSaveCommandParams());
-    expect(response).toBeFalsy();
+    expect(response.id).toBe(discordCommandModel.id);
   });
 });
