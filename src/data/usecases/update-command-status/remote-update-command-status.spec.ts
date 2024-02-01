@@ -1,5 +1,5 @@
 import { HttpClientSpy } from '@/data/test';
-import { RemoteUpdateCommandStatus } from './remote-update-command-status';
+import { RemoteUpdateCommand } from './remote-update-command-status';
 import { HttpStatusCode } from '@/data/protocols/http';
 import { faker } from '@faker-js/faker';
 import { mockSaveCommandParams } from '@/domain/test';
@@ -8,7 +8,7 @@ import { describe, test, expect } from 'vitest';
 import { CommandStatus, type UpdateCommandParams } from '@/domain/usecases';
 
 type SutTypes = {
-  sut: RemoteUpdateCommandStatus;
+  sut: RemoteUpdateCommand;
   httpClientSpy: HttpClientSpy;
 };
 
@@ -22,7 +22,7 @@ const mockRequest = (): { id: string; params: UpdateCommandParams } => ({
 
 const makeSut = (url = faker.internet.url()): SutTypes => {
   const httpClientSpy = new HttpClientSpy();
-  const sut = new RemoteUpdateCommandStatus(url, httpClientSpy);
+  const sut = new RemoteUpdateCommand(url, httpClientSpy);
 
   return {
     sut,
@@ -30,7 +30,7 @@ const makeSut = (url = faker.internet.url()): SutTypes => {
   };
 };
 
-describe('RemoteUpdateCommandStatus', () => {
+describe('RemoteUpdateCommand', () => {
   test('should call HttpClient with correct URL and Method', async () => {
     const url = faker.internet.url();
     const { sut, httpClientSpy } = makeSut(url);

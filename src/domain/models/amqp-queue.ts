@@ -1,5 +1,5 @@
 import {
-  type UpdateCommandStatus,
+  type UpdateCommand,
   type SaveCommand,
   type SaveMusic,
   type SaveQueue,
@@ -10,7 +10,7 @@ export type AmqpQueue = {
   action: 'music' | 'queue' | 'command';
   factory: SaveQueue | SaveMusic | SaveCommand;
   ack?: {
-    function: UpdateCommandStatus;
+    function: UpdateCommand;
     functionName: 'update';
     successPayload: (discordId: string) => UpdateCommandParams;
     failPayload: UpdateCommandParams;

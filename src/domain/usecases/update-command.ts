@@ -8,6 +8,6 @@ export type UpdateCommandParams = {
   discordStatus: CommandStatus;
 };
 
-export interface UpdateCommandStatus {
+export interface UpdateCommand {
   update: (id: string, params: UpdateCommandParams) => Promise<void>;
 }

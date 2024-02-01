@@ -1,9 +1,9 @@
 import { type HttpClient, HttpStatusCode } from '@/data/protocols/http';
 import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
 import { type MusicModel } from '@/domain/models/music';
-import { type UpdateCommandParams, type UpdateCommandStatus } from '@/domain/usecases';
+import { type UpdateCommandParams, type UpdateCommand } from '@/domain/usecases';
 
-export class RemoteUpdateCommandStatus implements UpdateCommandStatus {
+export class RemoteUpdateCommand implements UpdateCommand {
   constructor(private readonly url: string, private readonly httpGetClient: HttpClient<MusicModel>) {}
 
   async update(id: string, params: UpdateCommandParams): Promise<void> {

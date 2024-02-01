@@ -5,7 +5,7 @@ import {
   makeRemoteSaveMusicFactory,
   makeRemoteSaveQueueFactory,
   makeRemoteSaveCommandFactory,
-  makeRemoteUpdateCommandStatusFactory
+  makeRemoteUpdateCommandFactory
 } from '@/main/factories/usecases';
 import { type AmqpQueue } from '@/domain/models';
 import { CommandStatus } from '@/domain/usecases';
@@ -18,7 +18,7 @@ const queues: AmqpQueue[] = [
     factory: makeRemoteSaveCommandFactory(),
     ack: {
       functionName: 'update',
-      function: makeRemoteUpdateCommandStatusFactory(),
+      function: makeRemoteUpdateCommandFactory(),
       successPayload: (discordId: string) => ({
         discordStatus: CommandStatus.RECEIVED,
         discordId
