@@ -1,6 +1,6 @@
 {
   "name": "discord-bot-api-queue",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Message Queuing for API Actions",
   "main": "index.js",
   "author": "Rafael Tessarollo",
