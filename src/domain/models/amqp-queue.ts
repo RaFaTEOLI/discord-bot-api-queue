@@ -6,8 +6,15 @@ import {
   type UpdateCommandParams
 } from '@/domain/usecases';
 
+export enum Action {
+  MUSIC = 'music',
+  QUEUE = 'queue',
+  COMMAND = 'command',
+  DELETE_COMMAND = 'delete-command'
+}
+
 export type AmqpQueue = {
-  action: 'music' | 'queue' | 'command';
+  action: Action;
   factory: SaveQueue | SaveMusic | SaveCommand;
   response?: boolean;
   ack?: {

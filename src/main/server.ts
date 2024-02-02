@@ -7,14 +7,14 @@ import {
   makeRemoteSaveCommandFactory,
   makeRemoteUpdateCommandFactory
 } from '@/main/factories/usecases';
-import { type AmqpQueue } from '@/domain/models';
+import { Action, type AmqpQueue } from '@/domain/models';
 import { CommandStatus } from '@/domain/usecases';
 
 const queues: AmqpQueue[] = [
-  { action: 'music', factory: makeRemoteSaveMusicFactory() },
-  { action: 'queue', factory: makeRemoteSaveQueueFactory() },
+  { action: Action.MUSIC, factory: makeRemoteSaveMusicFactory() },
+  { action: Action.QUEUE, factory: makeRemoteSaveQueueFactory() },
   {
-    action: 'command',
+    action: Action.COMMAND,
     factory: makeRemoteSaveCommandFactory(),
     response: true,
     ack: {
