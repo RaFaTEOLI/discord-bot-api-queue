@@ -25,7 +25,10 @@ describe('RemoteDeleteCommand', () => {
     const url = faker.internet.url();
     const { sut, httpClientSpy } = makeSut(url);
     const discordId = faker.datatype.uuid();
-    await sut.delete(discordId);
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.noContent
+    };
+    await sut.save(discordId);
     expect(httpClientSpy.url).toBe(`${url}/${discordId}`);
     expect(httpClientSpy.method).toBe('delete');
   });
@@ -35,7 +38,7 @@ describe('RemoteDeleteCommand', () => {
     httpClientSpy.response = {
       statusCode: HttpStatusCode.forbidden
     };
-    const promise = sut.delete(faker.datatype.uuid());
+    const promise = sut.save(faker.datatype.uuid());
     await expect(promise).rejects.toThrow(new AccessDeniedError());
   });
 
@@ -44,7 +47,7 @@ describe('RemoteDeleteCommand', () => {
     httpClientSpy.response = {
       statusCode: HttpStatusCode.notFound
     };
-    const promise = sut.delete(faker.datatype.uuid());
+    const promise = sut.save(faker.datatype.uuid());
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 
@@ -53,7 +56,7 @@ describe('RemoteDeleteCommand', () => {
     httpClientSpy.response = {
       statusCode: HttpStatusCode.serverError
     };
-    const promise = sut.delete(faker.datatype.uuid());
+    const promise = sut.save(faker.datatype.uuid());
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
 
@@ -62,7 +65,7 @@ describe('RemoteDeleteCommand', () => {
     httpClientSpy.response = {
       statusCode: HttpStatusCode.noContent
     };
-    const response = await sut.delete(faker.datatype.uuid());
+    const response = await sut.save(faker.datatype.uuid());
     expect(response).toBeFalsy();
   });
 });

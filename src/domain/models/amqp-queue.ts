@@ -3,7 +3,8 @@ import {
   type SaveCommand,
   type SaveMusic,
   type SaveQueue,
-  type UpdateCommandParams
+  type UpdateCommandParams,
+  type DeleteCommand
 } from '@/domain/usecases';
 
 export enum Action {
@@ -15,7 +16,7 @@ export enum Action {
 
 export type AmqpQueue = {
   action: Action;
-  factory: SaveQueue | SaveMusic | SaveCommand;
+  factory: SaveQueue | SaveMusic | SaveCommand | DeleteCommand;
   response?: boolean;
   ack?: {
     function: UpdateCommand;

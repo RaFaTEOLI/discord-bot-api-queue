@@ -5,7 +5,7 @@ import { type DeleteCommand } from '@/domain/usecases';
 export class RemoteDeleteCommand implements DeleteCommand {
   constructor(private readonly url: string, private readonly httpClient: HttpClient<void>) {}
 
-  async delete(id: string): Promise<void> {
+  async save(id: string): Promise<void> {
     const httpResponse = await this.httpClient.request({
       url: `${this.url}/${id}`,
       method: 'delete'

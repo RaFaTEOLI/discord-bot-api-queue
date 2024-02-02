@@ -1,3 +1,3 @@
 export interface DeleteCommand {
-  delete: (id: string) => Promise<void>;
+  save: (id: string) => Promise<void>;
 }
