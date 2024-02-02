@@ -12,6 +12,8 @@ export class RemoteDeleteCommand implements DeleteCommand {
     });
 
     switch (httpResponse.statusCode) {
+      case HttpStatusCode.noContent:
+        return;
       case HttpStatusCode.forbidden:
         throw new AccessDeniedError();
       default:
