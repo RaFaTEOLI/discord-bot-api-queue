@@ -56,4 +56,13 @@ describe('RemoteDeleteCommand', () => {
     const promise = sut.delete(faker.datatype.uuid());
     await expect(promise).rejects.toThrow(new UnexpectedError());
   });
+
+  test('should return void if HttpClient returns 204', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.noContent
+    };
+    const response = await sut.delete(faker.datatype.uuid());
+    expect(response).toBeFalsy();
+  });
 });
