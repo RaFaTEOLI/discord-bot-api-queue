@@ -1,3 +1,7 @@
+export type DeleteCommandParams = {
+  discordId: string;
+};
+
 export interface DeleteCommand {
-  save: (id: string) => Promise<void>;
+  save: (params: DeleteCommandParams) => Promise<void>;
 }
