@@ -5,7 +5,8 @@ import {
   makeRemoteSaveMusicFactory,
   makeRemoteSaveQueueFactory,
   makeRemoteSaveCommandFactory,
-  makeRemoteUpdateCommandFactory
+  makeRemoteUpdateCommandFactory,
+  makeRemoteDeleteCommandFactory
 } from '@/main/factories/usecases';
 import { Action, type AmqpQueue } from '@/domain/models';
 import { CommandStatus } from '@/domain/usecases';
@@ -26,6 +27,10 @@ const queues: AmqpQueue[] = [
       }),
       failPayload: { discordStatus: CommandStatus.FAILED }
     }
+  },
+  {
+    action: Action.DELETE_COMMAND,
+    factory: makeRemoteDeleteCommandFactory()
   }
 ];
 
