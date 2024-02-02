@@ -1,5 +1,5 @@
 import { HttpStatusCode, type HttpClient } from '@/data/protocols/http';
-import { AccessDeniedError } from '@/domain/errors';
+import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
 import { type DeleteCommand } from '@/domain/usecases';
 
 export class RemoteDeleteCommand implements DeleteCommand {
@@ -14,6 +14,8 @@ export class RemoteDeleteCommand implements DeleteCommand {
     switch (httpResponse.statusCode) {
       case HttpStatusCode.forbidden:
         throw new AccessDeniedError();
+      default:
+        throw new UnexpectedError();
     }
   }
 }
