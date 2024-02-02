@@ -7,7 +7,7 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       include: ['src/data/**/*.ts', 'src/domain/**/*.ts', 'src/infra/**/*.ts'],
-      exclude: ['src/**/test/*', 'src/main'],
+      exclude: ['src/**/test/*', 'src/main', 'src/domain/models/amqp-queue.ts'],
       provider: 'istanbul',
       reporter: ['text', 'json', 'html'],
       all: true,
