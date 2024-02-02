@@ -2,6 +2,8 @@ import { HttpClientSpy } from '@/data/test';
 import { faker } from '@faker-js/faker';
 import { describe, expect, test } from 'vitest';
 import { RemoteDeleteCommand } from './remote-delete-command';
+import { HttpStatusCode } from '@/data/protocols/http';
+import { AccessDeniedError } from '@/domain/errors';
 
 type SutTypes = {
   sut: RemoteDeleteCommand;
@@ -26,5 +28,14 @@ describe('RemoteDeleteCommand', () => {
     await sut.delete(discordId);
     expect(httpClientSpy.url).toBe(`${url}/${discordId}`);
     expect(httpClientSpy.method).toBe('delete');
+  });
+
+  test('should throw AccessDeniedError if HttpClient returns 403', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.forbidden
+    };
+    const promise = sut.delete(faker.datatype.uuid());
+    await expect(promise).rejects.toThrow(new AccessDeniedError());
   });
 });
